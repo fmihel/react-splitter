@@ -1,0 +1,54 @@
+{
+  "name": "fmihel-config-js",
+  "version": "0.0.1",
+  "description": "javascript project for tests",
+  "main": "server/index.js",
+  "scripts": {
+    "webpack": "webpack",
+    "auto": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fmihel/config-js.git"
+  },
+  "keywords": [
+    "javascript",
+    "bootstrap",
+    "js",
+    "config"
+  ],
+  "author": "fmihel76@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fmihel/config-js/issues"
+  },
+  "homepage": "https://github.com/fmihel/config-js#readme",
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "css-loader": "^3.2.0",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-import-resolver-webpack": "^0.11.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-react": "^7.15.1",
+    "html-webpack-plugin": "^3.2.0",
+    "page-reload-webpack-plugin": ">=0.2.3",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "fmihel-lib": "^0.7.4",
+    "jquery": "^3.4.1",
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
+  }
+}

@@ -1,0 +1,10 @@
+.splitter-wrapper > div{
+    border:1px dashed green;
+}
+
+.splitter{
+    min-width: 10px;
+    min-height: 10px;
+    background: #313131;
+    border: 0 !important;
+}
