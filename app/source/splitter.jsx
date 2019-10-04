@@ -3,6 +3,7 @@ import React from 'react';
 import {
     JX, flex, flexChild, binds,
 } from 'fmihel-lib';
+import ut from 'fmihel-lib/source/ut';
 
 
 class Splitter extends React.Component {
@@ -14,7 +15,7 @@ class Splitter extends React.Component {
             down: { x: 0, y: 0 }, // где кликнули в первый раз
             current: { x: 0, y: 0 }, // текущее положение
             move: { x: 0, y: 0 }, // на сколько переместили
-            position: this.props.start, // текущая позиция
+            position: this.props.position, // текущая позиция
 
         };
         binds(this, 'winMouseMove', 'winMouseUp', 'MouseDown');
@@ -27,17 +28,18 @@ class Splitter extends React.Component {
                 const current = JX.mouse();
                 const move = { x: current.x - state.current.x, y: current.y - state.current.y };
 
-                const position = state.position + (this.props.direct === 'vert' ? move.y : move.x);
-                // if (!((position >= props.min) && (((props.max === 0) || (props.max === undefined)) || (position <= props.max)))) {
-                //    position = state.position;
-                //    this.setMouseState('up');
-                // } else
-                if (this.props.onSplit) {
+                let position = state.position + (props.direct === 'vert' ? move.y : move.x);
+                if (
+                    (ut.get(props, 'min', 0) >= position)
+                    || ((props.max !== undefined) && (props.max > 0) && (props.max < position))
+                ) {
+                    position = state.position;
+                    this.setMouseState('up');
+                } else if (this.props.onSplit) {
                     this.props.onSplit({
                         current, move, down: state.down, position,
                     });
                 }
-                // }
                 return { current, move, position };
             });
         }
@@ -76,7 +78,10 @@ class Splitter extends React.Component {
         const current = JX.mouse();
 
         this.setState({
-            down: current, current, move: { x: 0, y: 0 }, ...this.preLoadPosition(this.state, this.props),
+            down: current,
+            current,
+            move: { x: 0, y: 0 },
+            ...this.preLoadPosition(this.state, this.props),
         });
     }
 
@@ -117,23 +122,29 @@ class Splitter extends React.Component {
             >
                 <div
                     ref = {this.refLeft}
+                    className="splitter-panel"
                     style={{
                         ...move,
                         ...flexChild({ grow: 0 }),
                         ...flex(),
-                    }}>
+                    }}
+
+                >
+
                     {child[0]}
                 </div>
                 <div
+                    className='splitter'
                     style={{
                         ...cursor,
                         ...flexChild({ grow: 0 }),
                     }}
-                    className='splitter'
+
                     onMouseDown={this.MouseDown}
                 >
                 </div>
                 <div
+                    className="splitter-panel"
                     style={{
                         ...flexChild({ grow: 1 }),
                         ...flex(),
@@ -149,7 +160,7 @@ class Splitter extends React.Component {
 Splitter.defaultProps = {
     onSplit: undefined,
     direct: 'horiz',
-    // /start: 150,
+    // position: 150,
     min: 0,
     // max: 200,
 };

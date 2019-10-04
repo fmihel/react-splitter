@@ -1,7 +1,7 @@
 import './template/define.css';
 import './template/main.css';
 import {
-    DOM, flex, flexChild, JX, binds,
+    DOM, flex, flexChild, binds,
 } from 'fmihel-lib';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -29,26 +29,19 @@ class App extends React.Component {
         });
     }
 
-    componentDidMount() {
-        this.t = setInterval(() => {
-            this.setState((state) => {
-                const o = this.debugParam(state, 'time');
-                o.time += 1;
-                return state;
-            });
-        }, 1000);
-    }
-
-    componentWillUnmount() {
-
-    }
 
     render() {
         return (
             <div id ='app' style={{ ...flexChild(), ...flex() }}>
-                <Splitter>
+                <Splitter min={50}>
                     <div id='left' onClick = {this.onClickLeft}className='box' style={{ ...flexChild() }}>Left</div>
-                    <div id='right' className='box' style={{ ...flexChild() }}></div>
+
+                    <div id='right' className='box' style={{ ...flexChild(), ...flex() }}>
+                        <Splitter direct="vert" position={200} max={400} min={100}>
+                            <div id='top'>Top</div>
+                            <div id='bottom'>Bottom</div>
+                        </Splitter>
+                    </div>
                 </Splitter>
             </div>
         );

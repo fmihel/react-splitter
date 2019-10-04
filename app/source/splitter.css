@@ -1,7 +1,12 @@
 .splitter-wrapper > div{
-    border:1px dashed green;
+    border:0px dashed green;
 }
+.splitter-panel{
 
+}
+.spliiter-panel-close{
+    
+}
 .splitter{
     min-width: 10px;
     min-height: 10px;
