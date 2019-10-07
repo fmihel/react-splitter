@@ -1,8 +1,7 @@
-.splitter-wrapper > div{
-    border:0px dashed green;
-}
 .splitter-panel{
-
+    overflow: auto;
+    
+    
 }
 .spliiter-panel-close{
     
@@ -10,6 +9,6 @@
 .splitter{
     min-width: 10px;
     min-height: 10px;
-    background: #313131;
-    border: 0 !important;
+    border:1px solid gray;
+    
 }

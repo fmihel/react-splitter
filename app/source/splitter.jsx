@@ -19,16 +19,20 @@ class Splitter extends React.Component {
 
         };
         binds(this, 'winMouseMove', 'winMouseUp', 'MouseDown');
-        this.refLeft = React.createRef();
+        this.ref = {
+            left: React.createRef(),
+            right: React.createRef(),
+        };
     }
 
     winMouseMove() {
         if (this.stateMouse === 'down') {
             this.setState((state, props) => {
                 const current = JX.mouse();
+                const sign = (props.stretchPanel !== 0 ? 1 : -1);
                 const move = { x: current.x - state.current.x, y: current.y - state.current.y };
 
-                let position = state.position + (props.direct === 'vert' ? move.y : move.x);
+                let position = state.position + sign * (props.direct === 'vert' ? move.y : move.x);
                 if (
                     (ut.get(props, 'min', 0) >= position)
                     || ((props.max !== undefined) && (props.max > 0) && (props.max < position))
@@ -36,7 +40,7 @@ class Splitter extends React.Component {
                     position = state.position;
                     this.setMouseState('up');
                 } else if (this.props.onSplit) {
-                    this.props.onSplit({
+                    props.onSplit({
                         current, move, down: state.down, position,
                     });
                 }
@@ -66,7 +70,8 @@ class Splitter extends React.Component {
 
     preLoadPosition(state, props) {
         if (state.position === undefined) {
-            const pos = JX.pos(this.refLeft.current);
+            const ref = this.stretchPanel === 0 ? this.ref.right : this.ref.left;
+            const pos = JX.pos(ref.current);
             return { position: props.direct === 'vert' ? pos.h : pos.w };
         }
         return {};
@@ -93,6 +98,7 @@ class Splitter extends React.Component {
         if (this.props.direct === 'vert') {
             if (this.state.position !== undefined) {
                 move = {
+                    minHeight: this.state.position,
                     height: this.state.position,
 
                 };
@@ -103,6 +109,7 @@ class Splitter extends React.Component {
         } else {
             if (this.state.position !== undefined) {
                 move = {
+                    minWidth: this.state.position,
                     width: this.state.position,
                 };
             }
@@ -110,47 +117,62 @@ class Splitter extends React.Component {
                 cursor: 'e-resize',
             };
         }
-
+        const moveLeft = this.props.stretchPanel === 0 ? {} : move;
+        const moveRight = this.props.stretchPanel !== 0 ? {} : move;
 
         return (
             <div
-                className='splitter-wrapper'
+                className='splitter-container'
                 style={{
-                    ...flex({ direct: this.props.direct }),
+                    position: 'relative',
                     ...flexChild(),
-                }}
-            >
+                    ...flex(),
+                }}>
                 <div
-                    ref = {this.refLeft}
-                    className="splitter-panel"
+                    className='splitter-frame'
                     style={{
-                        ...move,
-                        ...flexChild({ grow: 0 }),
-                        ...flex(),
-                    }}
-
-                >
-
-                    {child[0]}
-                </div>
-                <div
-                    className='splitter'
-                    style={{
-                        ...cursor,
-                        ...flexChild({ grow: 0 }),
-                    }}
-
-                    onMouseDown={this.MouseDown}
-                >
-                </div>
-                <div
-                    className="splitter-panel"
-                    style={{
-                        ...flexChild({ grow: 1 }),
-                        ...flex(),
+                        position: 'absolute',
+                        ...flex({ direct: this.props.direct }),
+                        ...flexChild(),
+                        width: '100%',
+                        height: '100%',
                     }}
                 >
-                    {child[1]}
+                    <div
+                        className="splitter-panel"
+                        ref = {this.ref.left}
+                        style={{
+                            position: 'relative',
+                            ...moveLeft,
+                            ...flexChild({ grow: this.props.stretchPanel === 0 ? 1 : 0 }),
+                            ...flex(),
+                        }}
+
+                    >
+                        {child[0]}
+                    </div>
+                    <div
+                        className='splitter'
+                        style={{
+                            ...cursor,
+                            ...flexChild({ grow: 0 }),
+                        }}
+
+                        onMouseDown={this.MouseDown}
+                    >
+                    </div>
+                    <div
+                        className="splitter-panel"
+                        ref = {this.ref.right}
+                        style={{
+                            position: 'relative',
+                            ...moveRight,
+                            ...flexChild({ grow: this.props.stretchPanel === 0 ? 0 : 1 }),
+                            ...flex(),
+                        }}
+                    >
+                        {child[1]}
+                    </div>
                 </div>
             </div>
         );
@@ -160,9 +182,12 @@ class Splitter extends React.Component {
 Splitter.defaultProps = {
     onSplit: undefined,
     direct: 'horiz',
+    stretchPanel: 1,
+    //
     // position: 150,
-    min: 0,
+    // min: 0,
     // max: 200,
+    // minRight:0
 };
 
 export default Splitter;
