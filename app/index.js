@@ -13,7 +13,7 @@ class App extends React.Component {
         super(p);
         binds(this, 'onClickLeft', 'onClose');
         this.state = {
-            close: false,
+            close: true,
             debug: [
                 { time: 1 },
             ],
@@ -44,7 +44,7 @@ class App extends React.Component {
                 </div>
                 <Splitter
                     stretchPanel={1}
-                    position={200}
+
                     delay={500}
                     direct="horiz"
                     close={this.state.close}

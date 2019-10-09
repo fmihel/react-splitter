@@ -14,6 +14,7 @@ import {
 class Splitter extends React.Component {
     constructor(p) {
         super(p);
+
         this.state = {
 
             state: 'up',
@@ -87,17 +88,19 @@ class Splitter extends React.Component {
         return {};
     }
 
-    MouseDown(e) {
-        this.setMouseState('down');
+    MouseDown() {
+        if (!this.props.close) {
+            this.setMouseState('down');
 
-        const current = JX.mouse();
+            const current = JX.mouse();
 
-        this.setState({
-            down: current,
-            current,
-            move: { x: 0, y: 0 },
-            ...this.preLoadPosition(this.state, this.props),
-        });
+            this.setState({
+                down: current,
+                current,
+                move: { x: 0, y: 0 },
+                ...this.preLoadPosition(this.state, this.props),
+            });
+        }
     }
 
     posStyle(position, addition = {}) {
@@ -138,6 +141,7 @@ class Splitter extends React.Component {
             right: this.props.stretchPanel !== 0 ? {} : this.posStyle(this.state.position),
         };
 
+
         return (
 
             <Transition
@@ -146,12 +150,13 @@ class Splitter extends React.Component {
             >
                 {(state) => {
                     const name = this.props.stretchPanel !== 0 ? 'left' : 'right';
+
+
                     if (state !== 'entered') {
                         move[name] = this.posStyle(state !== 'entering' ? this.state.animate[state] : this.state.position, this.transitionStyle());
                     } else {
                         delete move[name].transition;
                     }
-
 
                     return (
                         <div
@@ -187,9 +192,11 @@ class Splitter extends React.Component {
 
                                 <div
                                     className='splitter'
+
                                     style={{
                                         ...cursor,
                                         ...flexChild({ grow: 0 }),
+                                        display: state === 'exited' ? 'none' : 'block',
                                     }}
 
                                     onMouseDown={this.MouseDown}
@@ -219,10 +226,14 @@ class Splitter extends React.Component {
 
 Splitter.defaultProps = {
     onSplit: undefined,
+    onClose: undefined,
+    onOpen: undefined,
     direct: 'horiz',
     stretchPanel: 1,
     close: false,
     delay: 300,
+    position: 200,
+
     //
     // position: 150,
     // min: 0,
