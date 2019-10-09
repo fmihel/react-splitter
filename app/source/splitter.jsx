@@ -5,6 +5,11 @@ import {
 } from 'fmihel-lib';
 import ut from 'fmihel-lib/source/ut';
 
+import {
+    TransitionGroup,
+    CSSTransition,
+    Transition,
+} from 'react-transition-group';
 
 class Splitter extends React.Component {
     constructor(p) {
@@ -16,7 +21,12 @@ class Splitter extends React.Component {
             current: { x: 0, y: 0 }, // текущее положение
             move: { x: 0, y: 0 }, // на сколько переместили
             position: this.props.position, // текущая позиция
-
+            animate: {
+                entering: 100,
+                entered: 100,
+                exiting: 0,
+                exited: 0,
+            },
         };
         binds(this, 'winMouseMove', 'winMouseUp', 'MouseDown');
         this.ref = {
@@ -90,91 +100,119 @@ class Splitter extends React.Component {
         });
     }
 
+    posStyle(position, addition = {}) {
+        const out = { ...addition };
+        if (position !== undefined) {
+            if (this.props.direct === 'vert') {
+                out.minHeight = position;
+                out.height = position;
+            } else {
+                out.minWidth = position;
+                out.width = position;
+            }
+        }
+        return out;
+    }
+
+    transitionStyle() {
+        const name = this.props.direct === 'vert' ? 'height' : 'width';
+
+        return { transition: `${name} ${this.props.delay}ms,min-${name} ${this.props.delay}ms` };
+    }
+
     render() {
         const child = React.Children.toArray(this.props.children);
 
-        let move = {};
         let cursor = {};
         if (this.props.direct === 'vert') {
-            if (this.state.position !== undefined) {
-                move = {
-                    minHeight: this.state.position,
-                    height: this.state.position,
-
-                };
-            }
             cursor = {
                 cursor: 'n-resize',
             };
         } else {
-            if (this.state.position !== undefined) {
-                move = {
-                    minWidth: this.state.position,
-                    width: this.state.position,
-                };
-            }
             cursor = {
                 cursor: 'e-resize',
             };
         }
-        const moveLeft = this.props.stretchPanel === 0 ? {} : move;
-        const moveRight = this.props.stretchPanel !== 0 ? {} : move;
+        const move = {
+            left: this.props.stretchPanel === 0 ? {} : this.posStyle(this.state.position),
+            right: this.props.stretchPanel !== 0 ? {} : this.posStyle(this.state.position),
+        };
 
         return (
-            <div
-                className='splitter-container'
-                style={{
-                    position: 'relative',
-                    ...flexChild(),
-                    ...flex(),
-                }}>
-                <div
-                    className='splitter-frame'
-                    style={{
-                        position: 'absolute',
-                        ...flex({ direct: this.props.direct }),
-                        ...flexChild(),
-                        width: '100%',
-                        height: '100%',
-                    }}
-                >
-                    <div
-                        className="splitter-panel"
-                        ref = {this.ref.left}
-                        style={{
-                            position: 'relative',
-                            ...moveLeft,
-                            ...flexChild({ grow: this.props.stretchPanel === 0 ? 1 : 0 }),
-                            ...flex(),
-                        }}
 
-                    >
-                        {child[0]}
-                    </div>
-                    <div
-                        className='splitter'
-                        style={{
-                            ...cursor,
-                            ...flexChild({ grow: 0 }),
-                        }}
+            <Transition
+                in={!this.props.close}
+                timeout={this.props.delay}
+            >
+                {(state) => {
+                    const name = this.props.stretchPanel !== 0 ? 'left' : 'right';
+                    if (state !== 'entered') {
+                        move[name] = this.posStyle(state !== 'entering' ? this.state.animate[state] : this.state.position, this.transitionStyle());
+                    } else {
+                        delete move[name].transition;
+                    }
 
-                        onMouseDown={this.MouseDown}
-                    >
-                    </div>
-                    <div
-                        className="splitter-panel"
-                        ref = {this.ref.right}
-                        style={{
-                            position: 'relative',
-                            ...moveRight,
-                            ...flexChild({ grow: this.props.stretchPanel === 0 ? 0 : 1 }),
-                            ...flex(),
-                        }}
-                    >
-                        {child[1]}
-                    </div>
-                </div>
-            </div>
+
+                    return (
+                        <div
+                            className='splitter-container'
+                            style={{
+                                position: 'relative',
+                                ...flexChild(),
+                                ...flex(),
+                            }}>
+                            <div
+                                className='splitter-frame'
+                                style={{
+                                    position: 'absolute',
+                                    ...flex({ direct: this.props.direct }),
+                                    ...flexChild(),
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                <div
+                                    className="splitter-panel"
+                                    ref = {this.ref.left}
+                                    style={{
+                                        position: 'relative',
+                                        ...move.left,
+                                        ...flexChild({ grow: this.props.stretchPanel === 0 ? 1 : 0 }),
+                                        ...flex(),
+                                    }}
+
+                                >
+                                    {child[0]}
+                                </div>
+
+                                <div
+                                    className='splitter'
+                                    style={{
+                                        ...cursor,
+                                        ...flexChild({ grow: 0 }),
+                                    }}
+
+                                    onMouseDown={this.MouseDown}
+                                >
+                                </div>
+                                <div
+                                    className="splitter-panel"
+                                    ref = {this.ref.right}
+                                    style={{
+                                        position: 'relative',
+                                        ...move.right,
+                                        ...flexChild({ grow: this.props.stretchPanel === 0 ? 0 : 1 }),
+                                        ...flex(),
+                                    }}
+                                >
+                                    {child[1]}
+                                </div>
+
+                            </div>
+                        </div>
+                    );
+                }}
+            </Transition>
         );
     }
 }
@@ -183,6 +221,8 @@ Splitter.defaultProps = {
     onSplit: undefined,
     direct: 'horiz',
     stretchPanel: 1,
+    close: false,
+    delay: 300,
     //
     // position: 150,
     // min: 0,
